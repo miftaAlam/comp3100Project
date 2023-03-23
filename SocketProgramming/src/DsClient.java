@@ -49,17 +49,16 @@ public class DsClient {
         System.out.println("Server says: "+ this.inputStream.readLine());
         sendMessage("QUIT");
         System.out.println("Server says: "+ this.inputStream.readLine());
-
     }
-    public void algorithm() throws Exception{
 
+    public void algorithm() throws Exception{
       //HANDSHAKE/AUTHERTICATING 
         sendMessage("HELO"); //Send HELO
         System.out.println("Server says 0: "+this.inputStream.readLine()); //Receive OK
         String username = System.getProperty("user.name"); 
         sendMessage("AUTH " +username); //SEND AUTH
         System.out.println("Server says 1: "+ this.inputStream.readLine()); //Receive OK
-        String lastMessageFromServer = null;
+        String lastMessageFromServer = "";
         int noOfServers = 0;
         String currentMessage = null;
         String[] storingData = new String[3];
@@ -73,12 +72,14 @@ public class DsClient {
         int actualMaxCores = 0;
         int currentHighestCores = 0;
         int iterations = 0;
+        int currentJobIDs = 0;
+        String [] jobString = null;
         
        
         while(lastMessageFromServer != "NONE"){
             sendMessage("REDY"); //when we send ready server sends us an update, usually a job from the USER side of the server
             //if I need get JCPL -> message from the Server Side of the simulator 
-            lastMessageFromServer = this.inputStream.readLine();
+
             if(iterations == 0){
             sendMessage("GETS All");
             currentMessage = this.inputStream.readLine();
@@ -89,17 +90,9 @@ public class DsClient {
                 for(int i = 0; i<noOfServers; i++){
                     currentMessage = this.inputStream.readLine();
                     eachServer = convertStringtoArray(currentMessage);
-                   currentHighestCores = Integer.parseInt(eachServer[4]);
-                   currentLargestType = eachServer[0];
-                   currentLargestTypeCount++;
-               
-                   //  if(currentCore>highestCores){
-                   //     highestCores = currentCore;
-                   //     allServers.set(0,eachServer); 
-                   //  } 
-                   //  if(currentCore == highestCores){
-                      
-                   //  }
+                    currentHighestCores = Integer.parseInt(eachServer[4]);
+                    currentLargestType = eachServer[0];
+                    currentLargestTypeCount++;
    
                    if(currentHighestCores>actualMaxCores && !(currentLargestType.equals(actualLargestType))){
                          actualLargestType = currentLargestType;
@@ -116,13 +109,28 @@ public class DsClient {
    
             }
             iterations++;
+
+            //get the JOB number, see where to save that 
+            int atServer = 0;
+            while(lastMessageFromServer!= "NONE"){
+                sendMessage("REDY"); //when we send ready server sends us an update, usually a job from the USER side of the server
+                //if I need get JCPL -> message from the Server Side of the simulator 
+                lastMessageFromServer = this.inputStream.readLine(); //JOB details 
+                jobString = convertStringtoArray(lastMessageFromServer);
+                currentJobIDs = Integer.parseInt(jobString[2]);
+                System.out.println("Server says : "+ lastMessageFromServer);
+                sendMessage("SCHD " + currentJobIDs + actualLargestType + atServer);
+                 System.out.println("Server says: "+ this.inputStream.readLine());
+
+                // atServer++;
+                atServer = (atServer+1) % currentLargestTypeCount;
+            }
+            
+            // System.out.println("Server says : "+ lastMessageFromServer);
+            // sendMessage("SCHD " + jobID + " xlarge " + 0);
+            // jobID++;
             
             
-            System.out.println("Server says : "+ lastMessageFromServer);
-            sendMessage("SCHD " + jobID + " xlarge " + 0);
-            jobID++;
-            
-            System.out.println("Server says: "+ this.inputStream.readLine());
         }
         // sendMessage("SCHD 0 xlarge 0");
 
