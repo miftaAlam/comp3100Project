@@ -9,8 +9,8 @@ public class DsClient {
     // int serverID = 0;
     int jobID = 0;
 
-    ArrayList<String> eachServer;
-    ArrayList<ArrayList<String>> allServers;
+    // ArrayList<String> eachServer;
+    ArrayList<String[]> allServers;
     // = new ArrayList<>();
     
 
@@ -22,6 +22,7 @@ public class DsClient {
           s = new Socket(address, port);
           outStream = new DataOutputStream(s.getOutputStream());
           inputStream = new BufferedReader(new InputStreamReader(s.getInputStream()));  
+          allServers = new ArrayList<>();
 
     }
 
@@ -62,7 +63,17 @@ public class DsClient {
         int noOfServers = 0;
         String currentMessage = null;
         String[] storingData = new String[3];
-        int counter = 0;
+        String[] eachServer = null;
+        
+        String actualLargestType = "";
+        String currentLargestType = "";
+        int actualLargestTypeCount = 0;
+        int currentLargestTypeCount = 0;
+        
+        int actualMaxCores = 0;
+        int currentHighestCores = 0;
+        
+       
         while(lastMessageFromServer != "NONE"){
             sendMessage("REDY"); //when we send ready server sends us an update, usually a job from the USER side of the server
             //if I need get JCPL -> message from the Server Side of the simulator 
@@ -71,8 +82,30 @@ public class DsClient {
             currentMessage = this.inputStream.readLine();
             storingData = convertStringtoArray(currentMessage);
             noOfServers = Integer.parseInt(storingData[1]);
+            sendMessage("OK");
             for(int i = 0; i<noOfServers; i++){
-                 
+                 currentMessage = this.inputStream.readLine();
+                 eachServer = convertStringtoArray(currentMessage);
+                currentHighestCores = Integer.parseInt(eachServer[4]);
+                currentLargestType = eachServer[0];
+                currentLargestTypeCount++;
+            
+                //  if(currentCore>highestCores){
+                //     highestCores = currentCore;
+                //     allServers.set(0,eachServer); 
+                //  } 
+                //  if(currentCore == highestCores){
+                   
+                //  }
+
+                if(currentHighestCores>actualLargestTypeCount && !(currentLargestType.equals(actualLargestType))){
+                      actualLargestType = currentLargestType;
+                      actualMaxCores = currentHighestCores;
+                }
+
+
+
+
             }
 
             
@@ -95,27 +128,27 @@ public class DsClient {
         this.outStream.write( (message + "\n").getBytes("UTF-8"));
     }
 
-    public int extractNoOfServers(String s){
-        // int countSpace = 0;
-        char currChar = ' ';
-        int index = 0;
-        String storingNum = null;
-        int noOfServers = 0;
+    // public int extractNoOfServers(String s){
+    //     // int countSpace = 0;
+    //     char currChar = ' ';
+    //     int index = 0;
+    //     String storingNum = null;
+    //     int noOfServers = 0;
     
         
-        while(currChar!= ' '){
-            currChar = s.charAt(index);
-            index++;
-        }
+    //     while(currChar!= ' '){
+    //         currChar = s.charAt(index);
+    //         index++;
+    //     }
 
-        while(currChar!= ' '){
-            storingNum = storingNum + currChar;
-        }
+    //     while(currChar!= ' '){
+    //         storingNum = storingNum + currChar;
+    //     }
 
-        noOfServers = Integer.parseInt(storingNum);
+    //     noOfServers = Integer.parseInt(storingNum);
 
-        return noOfServers;
-    }
+    //     return noOfServers;
+    // }
 
     public String[] convertStringtoArray (String s){
         return s.split(" ");
