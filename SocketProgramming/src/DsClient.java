@@ -28,7 +28,7 @@ public class DsClient {
 
     public static void main(String[] args) throws Exception{
         DsClient c = new DsClient("10.126.133.191",50000);
-        c.byClient();
+        c.algorithm();
 
         c.s.close();
         c.inputStream.close();
@@ -74,13 +74,20 @@ public class DsClient {
         int iterations = 0;
         int currentJobIDs = 0;
         String [] jobString = null;
+        int atServer = 0;
         
        
-        while(lastMessageFromServer != "NONE"){
-            sendMessage("REDY"); //when we send ready server sends us an update, usually a job from the USER side of the server
-            //if I need get JCPL -> message from the Server Side of the simulator 
+        while(!(lastMessageFromServer.equals("NONE"))){ 
 
+
+            sendMessage("REDY"); //when we send ready server sends us an update, usually a job from the USER side of the server
+            //if I need get JCPL -> message from the Server Side of the simulator
+            lastMessageFromServer = this.inputStream.readLine(); //JOB details 
             if(iterations == 0){
+            // sendMessage("REDY"); //when we send ready server sends us an update, usually a job from the USER side of the server
+            // //if I need get JCPL -> message from the Server Side of the simulator
+            // lastMessageFromServer = this.inputStream.readLine(); //JOB details 
+
             sendMessage("GETS All");
             currentMessage = this.inputStream.readLine();
             storingData = convertStringtoArray(currentMessage);
@@ -106,25 +113,34 @@ public class DsClient {
    
    
                }
+               sendMessage("OK");
    
             }
             iterations++;
 
             //get the JOB number, see where to save that 
-            int atServer = 0;
-            while(lastMessageFromServer!= "NONE"){
-                sendMessage("REDY"); //when we send ready server sends us an update, usually a job from the USER side of the server
-                //if I need get JCPL -> message from the Server Side of the simulator 
-                lastMessageFromServer = this.inputStream.readLine(); //JOB details 
+            // int atServer = 0;
+            // while(lastMessageFromServer!= "NONE"){
+                // sendMessage("REDY"); //when we send ready server sends us an update, usually a job from the USER side of the server
+                // //if I need get JCPL -> message from the Server Side of the simulator 
+                // lastMessageFromServer = this.inputStream.readLine(); //JOB details 
                 jobString = convertStringtoArray(lastMessageFromServer);
+                System.out.println(lastMessageFromServer + "man");
+                if(jobString[0].equals("JOBN")){
+                // jobString = convertStringtoArray(lastMessageFromServer);
                 currentJobIDs = Integer.parseInt(jobString[2]);
                 System.out.println("Server says : "+ lastMessageFromServer);
-                sendMessage("SCHD " + currentJobIDs + actualLargestType + atServer);
+                // if(jobString[0].equals("JOBN")){
+                 sendMessage("SCHD " + currentJobIDs + " " +actualLargestType + " "+ atServer);
                  System.out.println("Server says: "+ this.inputStream.readLine());
+                 
 
                 // atServer++;
                 atServer = (atServer+1) % currentLargestTypeCount;
-            }
+
+                }
+                
+          //  }
             
             // System.out.println("Server says : "+ lastMessageFromServer);
             // sendMessage("SCHD " + jobID + " xlarge " + 0);
