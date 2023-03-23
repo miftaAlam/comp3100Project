@@ -67,47 +67,56 @@ public class DsClient {
         
         String actualLargestType = "";
         String currentLargestType = "";
-        int actualLargestTypeCount = 0;
+        // int actualLargestTypeCount = 0;
         int currentLargestTypeCount = 0;
         
         int actualMaxCores = 0;
         int currentHighestCores = 0;
+        int iterations = 0;
         
        
         while(lastMessageFromServer != "NONE"){
             sendMessage("REDY"); //when we send ready server sends us an update, usually a job from the USER side of the server
             //if I need get JCPL -> message from the Server Side of the simulator 
             lastMessageFromServer = this.inputStream.readLine();
+            if(iterations == 0){
             sendMessage("GETS All");
             currentMessage = this.inputStream.readLine();
             storingData = convertStringtoArray(currentMessage);
             noOfServers = Integer.parseInt(storingData[1]);
             sendMessage("OK");
-            for(int i = 0; i<noOfServers; i++){
-                 currentMessage = this.inputStream.readLine();
-                 eachServer = convertStringtoArray(currentMessage);
-                currentHighestCores = Integer.parseInt(eachServer[4]);
-                currentLargestType = eachServer[0];
-                currentLargestTypeCount++;
             
-                //  if(currentCore>highestCores){
-                //     highestCores = currentCore;
-                //     allServers.set(0,eachServer); 
-                //  } 
-                //  if(currentCore == highestCores){
+                for(int i = 0; i<noOfServers; i++){
+                    currentMessage = this.inputStream.readLine();
+                    eachServer = convertStringtoArray(currentMessage);
+                   currentHighestCores = Integer.parseInt(eachServer[4]);
+                   currentLargestType = eachServer[0];
+                   currentLargestTypeCount++;
+               
+                   //  if(currentCore>highestCores){
+                   //     highestCores = currentCore;
+                   //     allServers.set(0,eachServer); 
+                   //  } 
+                   //  if(currentCore == highestCores){
+                      
+                   //  }
+   
+                   if(currentHighestCores>actualMaxCores && !(currentLargestType.equals(actualLargestType))){
+                         actualLargestType = currentLargestType;
+                         actualMaxCores = currentHighestCores;
+                         currentLargestTypeCount = 1;
+                   }
                    
-                //  }
-
-                if(currentHighestCores>actualLargestTypeCount && !(currentLargestType.equals(actualLargestType))){
-                      actualLargestType = currentLargestType;
-                      actualMaxCores = currentHighestCores;
-                }
-
-
-
-
+                   if(currentHighestCores == actualMaxCores && !(currentLargestType.equals(actualLargestType))){
+                       continue;
+                   }
+   
+   
+               }
+   
             }
-
+            iterations++;
+            
             
             System.out.println("Server says : "+ lastMessageFromServer);
             sendMessage("SCHD " + jobID + " xlarge " + 0);
