@@ -59,12 +59,23 @@ public class DsClient {
         sendMessage("AUTH " +username); //SEND AUTH
         System.out.println("Server says 1: "+ this.inputStream.readLine()); //Receive OK
         String lastMessageFromServer = null;
+        int noOfServers = 0;
+        String currentMessage = null;
         String[] storingData = new String[3];
         int counter = 0;
         while(lastMessageFromServer != "NONE"){
             sendMessage("REDY"); //when we send ready server sends us an update, usually a job from the USER side of the server
             //if I need get JCPL -> message from the Server Side of the simulator 
             lastMessageFromServer = this.inputStream.readLine();
+            sendMessage("GETS All");
+            currentMessage = this.inputStream.readLine();
+            storingData = convertStringtoArray(currentMessage);
+            noOfServers = Integer.parseInt(storingData[1]);
+            for(int i = 0; i<noOfServers; i++){
+                 
+            }
+
+            
             System.out.println("Server says : "+ lastMessageFromServer);
             sendMessage("SCHD " + jobID + " xlarge " + 0);
             jobID++;
@@ -84,6 +95,31 @@ public class DsClient {
         this.outStream.write( (message + "\n").getBytes("UTF-8"));
     }
 
+    public int extractNoOfServers(String s){
+        // int countSpace = 0;
+        char currChar = ' ';
+        int index = 0;
+        String storingNum = null;
+        int noOfServers = 0;
+    
+        
+        while(currChar!= ' '){
+            currChar = s.charAt(index);
+            index++;
+        }
+
+        while(currChar!= ' '){
+            storingNum = storingNum + currChar;
+        }
+
+        noOfServers = Integer.parseInt(storingNum);
+
+        return noOfServers;
+    }
+
+    public String[] convertStringtoArray (String s){
+        return s.split(" ");
+    }
 
     // while(lastMessageFromServer != "NONE"){
     //     sendMessage("REDY"); //when we send ready server sends us an update, usually a job from the USER side of the server
