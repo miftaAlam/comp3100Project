@@ -1,13 +1,28 @@
 import java.net.*;  
 import java.io.*; 
-import java.util.ArrayList;
 
 public class DsClient {
     Socket s;
     DataOutputStream outStream;
     BufferedReader inputStream;
-    // int serverID = 0;
-    int jobID = 0;
+    String lastMessageFromServer = "";
+    int noOfServers = 0;
+    String currentMessage = null;
+    String[] storingData = new String[3];
+    String[] eachServer = null;
+    
+    String actualLargestType = "";
+    String currentLargestType = "";
+    // int actualLargestTypeCount = 0;
+    int currentLargestTypeCount = 0;
+    
+    int actualMaxCores = 0;
+    int currentHighestCores = 0;
+    int iterations = 0;
+    int currentJobIDs = 0;
+    String [] jobString = null;
+    int atServer = 0;
+    
 
     
 
@@ -17,12 +32,10 @@ public class DsClient {
           s = new Socket(address, port);
           outStream = new DataOutputStream(s.getOutputStream());
           inputStream = new BufferedReader(new InputStreamReader(s.getInputStream()));  
-
-
     }
 
     public static void main(String[] args) throws Exception{
-        DsClient c = new DsClient("10.126.133.191",50000);
+        DsClient c = new DsClient("10.126.137.170",50000);
         c.algorithm();
 
         c.s.close();
@@ -47,30 +60,8 @@ public class DsClient {
     }
 
     public void algorithm() throws Exception{
-      //HANDSHAKE/AUTHERTICATING 
-        sendMessage("HELO"); //Send HELO
-        System.out.println("Server says 0: "+this.inputStream.readLine()); //Receive OK
-        String username = System.getProperty("user.name"); 
-        sendMessage("AUTH " +username); //SEND AUTH
-        System.out.println("Server says 1: "+ this.inputStream.readLine()); //Receive OK
-        String lastMessageFromServer = "";
-        int noOfServers = 0;
-        String currentMessage = null;
-        String[] storingData = new String[3];
-        String[] eachServer = null;
-        
-        String actualLargestType = "";
-        String currentLargestType = "";
-        // int actualLargestTypeCount = 0;
-        int currentLargestTypeCount = 0;
-        
-        int actualMaxCores = 0;
-        int currentHighestCores = 0;
-        int iterations = 0;
-        int currentJobIDs = 0;
-        String [] jobString = null;
-        int atServer = 0;
-        
+      //HANDSHAKE/AUTHENTICATING 
+        authenticate();
        
         while(!(lastMessageFromServer.equals("NONE"))){ 
             sendMessage("REDY"); 
@@ -104,7 +95,7 @@ public class DsClient {
             }
             iterations++;
                 jobString = convertStringtoArray(lastMessageFromServer);
-                System.out.println(lastMessageFromServer + "man");
+                System.out.println(lastMessageFromServer);
                 if(jobString[0].equals("JOBN")){
                 currentJobIDs = Integer.parseInt(jobString[2]);
                 System.out.println("Server says : "+ lastMessageFromServer);
@@ -127,5 +118,18 @@ public class DsClient {
     }
     public String[] convertStringtoArray (String s){
         return s.split(" ");
+    }
+
+    public void authenticate(){
+        try{
+            sendMessage("HELO"); //Send HELO
+            System.out.println("Server says 0: "+ this.inputStream.readLine()); //Receive OK
+            String username = System.getProperty("user.name"); 
+            sendMessage("AUTH " +username); //SEND AUTH
+            System.out.println("Server says 1: "+ this.inputStream.readLine()); //Receive OK
+        }catch(Exception e){
+
+        }
+        
     }
 }
