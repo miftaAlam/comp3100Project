@@ -1,7 +1,7 @@
 import java.io.*;
 import java.net.*;
 
-public class Server {
+public class Week3Server {
     public static void main(String[] args){
       try{
          // listening in and accepting a connection

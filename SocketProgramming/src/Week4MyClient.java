@@ -1,7 +1,7 @@
 import java.net.*;  
 import java.io.*; 
 
-public class MyClient {
+public class Week4MyClient {
     public static void main(String[] args) throws Exception {
         Socket s = new Socket("192.168.230.221", 6666);
         DataOutputStream outStream = new DataOutputStream(s.getOutputStream());
