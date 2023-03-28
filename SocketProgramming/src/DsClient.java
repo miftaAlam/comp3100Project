@@ -62,7 +62,6 @@ public class DsClient {
     public void algorithm() throws Exception{
       //HANDSHAKE/AUTHENTICATING 
         authenticate();
-       
         while(!(lastMessageFromServer.equals("NONE"))){ 
             sendMessage("REDY"); 
             lastMessageFromServer = this.inputStream.readLine(); //JOB details 
