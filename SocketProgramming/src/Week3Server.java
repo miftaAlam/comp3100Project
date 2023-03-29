@@ -3,6 +3,9 @@ import java.net.*;
 
 public class Week3Server {
     public static void main(String[] args){
+
+      // 1. Create a connection between a client and a server using TCP. The end to end connections are created using Sockets
+      // 2. a Socket object takes in 2 parameters, "local host" and port number --> used to create a connection through this particular port number
       try{
          // listening in and accepting a connection
          ServerSocket ss = new ServerSocket(6666);  // when we start the server, just listens for new connections
