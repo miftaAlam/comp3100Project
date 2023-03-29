@@ -46,8 +46,6 @@ public class DsClient {
         }
     }
 
-    //you seem to be receiving the same JOBN message twice
-
     public void LRRalgorithm(){
         try{
             authenticate();
@@ -60,14 +58,10 @@ public class DsClient {
                 }
                 iterations++;
                     jobString = convertStringtoArray(lastMessageFromServer); 
-                    // System.out.println(lastMessageFromServer);
                     if(jobString[0].equals("JOBN")){ // as instead of JOBN, it can be JCPL, we only want to schedule a job when we receive one
                        currentJobIDs = Integer.parseInt(jobString[2]);
-                       System.out.println("Server says : "+ lastMessageFromServer + "whooo");
                        sendMessage("SCHD " + currentJobIDs + " " +actualLargestType + " " + atServer);
-                        // this.inputStream.readLine(); //you have to receive the OK
-                       System.out.println("Server says: "+ this.inputStream.readLine() + "WHAAAT"); //receivethe ok
-                    //    System.out.println("Server says: "+ this.inputStream.readLine() + "WHAAAT2");
+                       System.out.println("Server says: "+ this.inputStream.readLine()); //Receive OK
                        //as there can be more jobs than the no of servers in the largest server type
                        //so we use mod to wrap around, once we reach the last server, we wrap back to serverID 0 
                        atServer = (atServer+1) % actualLargestTypeCount; 
@@ -76,7 +70,7 @@ public class DsClient {
                     }
             }
             sendMessage("QUIT");
-            System.out.println("Server says: "+ this.inputStream.readLine());
+            System.out.println("Server says: "+ this.inputStream.readLine()); //Receive Quit
         }catch(Exception e){
 
         }
@@ -106,7 +100,6 @@ public class DsClient {
         }catch(Exception e){
 
         }
-        
     }
 
     public void findLargestServerType(){
@@ -123,6 +116,9 @@ public class DsClient {
                     eachServer = convertStringtoArray(currentMessage);
                     currentServerCores = Integer.parseInt(eachServer[4]); //No of Cores is in the 4th index (5th position) in the whole message
                     currentServerType = eachServer[0]; //server type is in the 0th index (1st Position) in the whole message
+                    //you have to do the check here before incrementing the number
+                    //or else if cores is the same and type is diff, we will keep incremeneting 
+                    //no of servers in the final large type will be double than expected 
                     if(currentServerCores == actualMaxCores && !(currentServerType.equals(actualLargestType))){
                         continue; //move on to the next server
                     }
@@ -136,13 +132,9 @@ public class DsClient {
                    
                    //if we find another server type, that has the same number of cores as the previous type
                    //we ignore it, as we want the first largest type (they are all in sequential order via no of cores)
-                //    if(currentServerCores == actualMaxCores && !(currentServerType.equals(actualLargestType))){
-                //        continue; //move on to the next server
-                //    }
                }
                sendMessage("OK");
                System.out.println("Server dots: "+ this.inputStream.readLine()); //actually receive the dot
-               System.out.println(actualLargestTypeCount);
           }catch(Exception e){
 
           }
