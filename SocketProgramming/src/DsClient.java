@@ -1,5 +1,6 @@
-import java.net.*;  
-import java.io.*; 
+import java.net.*;
+import java.io.*;
+
 
 public class DsClient {
     Socket s;
@@ -30,7 +31,7 @@ public class DsClient {
             outStream = new DataOutputStream(s.getOutputStream());
             inputStream = new BufferedReader(new InputStreamReader(s.getInputStream()));  
         } catch (Exception e){
-
+            System.out.println(e);
         }
     }
 
@@ -42,7 +43,7 @@ public class DsClient {
             c.inputStream.close();
             c.outStream.close();
         } catch (Exception e){
-            
+            System.out.println(e);
         }
     }
 
@@ -51,8 +52,7 @@ public class DsClient {
             authenticate();
             while(!(lastMessageFromServer.equals("NONE"))){ 
                 sendMessage("REDY"); 
-                lastMessageFromServer = this.inputStream.readLine(); //JOBN details or can be JCPL
-                  System.out.println("Server says : "+ lastMessageFromServer + "Booo");
+                lastMessageFromServer = receiveMessageFromServer(); //JOBN details or can be JCPL
                 if(iterations == 0){
                    findLargestServerType();
                 }
@@ -61,18 +61,16 @@ public class DsClient {
                     if(jobString[0].equals("JOBN")){ // as instead of JOBN, it can be JCPL, we only want to schedule a job when we receive one
                        currentJobIDs = Integer.parseInt(jobString[2]);
                        sendMessage("SCHD " + currentJobIDs + " " +actualLargestType + " " + atServer);
-                       System.out.println("Server says: "+ this.inputStream.readLine()); //Receive OK
+                       receiveMessageFromServer(); //Receive OK
                        //as there can be more jobs than the no of servers in the largest server type
                        //so we use mod to wrap around, once we reach the last server, we wrap back to serverID 0 
                        atServer = (atServer+1) % actualLargestTypeCount; 
-                       System.out.println(atServer);
-                       System.out.println(actualLargestTypeCount);
                     }
             }
             sendMessage("QUIT");
-            System.out.println("Server says: "+ this.inputStream.readLine()); //Receive Quit
+            receiveMessageFromServer(); //Receive Quit
         }catch(Exception e){
-
+            System.out.println(e);
         }
     }
 
@@ -80,8 +78,20 @@ public class DsClient {
         try{
             this.outStream.write( (message + "\n").getBytes("UTF-8"));
         } catch (Exception e){
-
+            System.out.println(e);
         }
+    }
+
+    public String receiveMessageFromServer() {
+        String msg = "";
+        try {
+            msg = this.inputStream.readLine();
+            System.out.println("Server says: " +msg);
+        }
+        catch (Exception e) {
+            System.out.println(e);
+        }
+        return msg;
     }
 
     //Used to convert the string being passed in as parameter, into a array of Strings
@@ -93,12 +103,12 @@ public class DsClient {
     public void authenticate(){
         try{
             sendMessage("HELO"); //Send HELO
-            System.out.println("Server says 0: "+ this.inputStream.readLine()); //Receive OK
+            receiveMessageFromServer(); //Receive OK
             String username = System.getProperty("user.name"); 
             sendMessage("AUTH " +username); //SEND AUTH
-            System.out.println("Server says 1: "+ this.inputStream.readLine()); //Receive OK
+            receiveMessageFromServer(); //Receive OK
         }catch(Exception e){
-
+            System.out.println(e);
         }
     }
 
@@ -134,9 +144,9 @@ public class DsClient {
                    //we ignore it, as we want the first largest type (they are all in sequential order via no of cores)
                }
                sendMessage("OK");
-               System.out.println("Server dots: "+ this.inputStream.readLine()); //actually receive the dot
+               receiveMessageFromServer(); //Receive the Dot
           }catch(Exception e){
-
+            System.out.println(e);
           }
     }
 }
