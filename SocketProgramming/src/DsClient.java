@@ -48,6 +48,7 @@ public class DsClient {
 
     public void LRRalgorithm(){
         try{
+            authenticate();
             while(!(lastMessageFromServer.equals("NONE"))){ 
                 sendMessage("REDY"); 
                 lastMessageFromServer = this.inputStream.readLine(); //JOBN details or can be JCPL
