@@ -46,23 +46,28 @@ public class DsClient {
         }
     }
 
+    //you seem to be receiving the same JOBN message twice
+
     public void LRRalgorithm(){
         try{
             authenticate();
             while(!(lastMessageFromServer.equals("NONE"))){ 
                 sendMessage("REDY"); 
                 lastMessageFromServer = this.inputStream.readLine(); //JOBN details or can be JCPL
+                  System.out.println("Server says : "+ lastMessageFromServer + "Booo");
                 if(iterations == 0){
                    findLargestServerType();
                 }
                 iterations++;
                     jobString = convertStringtoArray(lastMessageFromServer); 
-                    System.out.println(lastMessageFromServer);
+                    // System.out.println(lastMessageFromServer);
                     if(jobString[0].equals("JOBN")){ // as instead of JOBN, it can be JCPL, we only want to schedule a job when we receive one
                        currentJobIDs = Integer.parseInt(jobString[2]);
-                       System.out.println("Server says : "+ lastMessageFromServer);
+                       System.out.println("Server says : "+ lastMessageFromServer + "whooo");
                        sendMessage("SCHD " + currentJobIDs + " " +actualLargestType + " " + atServer);
-                       System.out.println("Server says: "+ this.inputStream.readLine());
+                       lastMessageFromServer = this.inputStream.readLine(); //you have to receive the OK
+                       System.out.println("Server says: "+ lastMessageFromServer + "WHAAAT");
+                    //    System.out.println("Server says: "+ this.inputStream.readLine() + "WHAAAT2");
                        //as there can be more jobs than the no of servers in the largest server type
                        //so we use mod to wrap around, once we reach the last server, we wrap back to serverID 0 
                        atServer = (atServer+1) % actualLargestTypeCount; 
@@ -131,6 +136,7 @@ public class DsClient {
                    }
                }
                sendMessage("OK");
+               System.out.println("Server dots: "+ this.inputStream.readLine());;
           }catch(Exception e){
 
           }
