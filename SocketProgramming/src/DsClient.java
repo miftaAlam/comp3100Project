@@ -24,18 +24,26 @@ public class DsClient {
     int atServer = 0; // keeps track of the serverID of the current server we are assigning the Job to 
     
     //Constructor 
-    public DsClient(String address, int port) throws Exception{
-          s = new Socket(address, port);
-          outStream = new DataOutputStream(s.getOutputStream());
-          inputStream = new BufferedReader(new InputStreamReader(s.getInputStream()));  
+    public DsClient(String address, int port){
+        try{
+            s = new Socket(address, port);
+            outStream = new DataOutputStream(s.getOutputStream());
+            inputStream = new BufferedReader(new InputStreamReader(s.getInputStream()));  
+        } catch (Exception e){
+
+        }
     }
 
-    public static void main(String[] args) throws Exception{
-        DsClient c = new DsClient("10.126.137.170",50000);
-        c.LRRalgorithm();
-        c.s.close();
-        c.inputStream.close();
-        c.outStream.close();
+    public static void main(String[] args){
+        try{
+            DsClient c = new DsClient("10.126.137.170",50000);
+            c.LRRalgorithm();
+            c.s.close();
+            c.inputStream.close();
+            c.outStream.close();
+        } catch (Exception e){
+            
+        }
     }
 
     public void LRRalgorithm(){
@@ -67,7 +75,11 @@ public class DsClient {
     }
 
     public void sendMessage(String message ) throws Exception{
-        this.outStream.write( (message + "\n").getBytes("UTF-8"));
+        try{
+            this.outStream.write( (message + "\n").getBytes("UTF-8"));
+        } catch (Exception e){
+
+        }
     }
 
     //Used to convert the string being passed in as parameter, into a array of Strings
