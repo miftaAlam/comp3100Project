@@ -20,3 +20,6 @@ For every message you send, you have to receive the message sent by the server b
 You cannot run the ds-client with -n as ds-client uses null separation
  - each message is terminated with either a newline code or a null code depending on the type you specify in server
  - my client uses newline separation, hence we are assing \n and -n
+
+For testing, no need to run server, the shell script already does it for u
+- ./S1Tests-wk6.sh -n DsClient.class 
