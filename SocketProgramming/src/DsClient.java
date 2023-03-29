@@ -59,8 +59,6 @@ public class DsClient {
                        atServer = (atServer+1) % actualLargestTypeCount; 
                     }
             }
-    
-    
             sendMessage("QUIT");
             System.out.println("Server says: "+ this.inputStream.readLine());
         }catch(Exception e){
@@ -124,8 +122,4 @@ public class DsClient {
 
           }
     }
-
-
-
-
 }
