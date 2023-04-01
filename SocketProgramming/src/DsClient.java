@@ -42,7 +42,8 @@ public class DsClient {
             c.s.close();
             c.inputStream.close();
             c.outStream.close();
-        } catch (Exception e){
+        } catch (
+            Exception e){
             System.out.println(e);
         }
     }
@@ -65,7 +66,7 @@ public class DsClient {
         }
     }
 
-    public void sendMessage(String message ) throws Exception{
+    public void sendMessage(String message){
         try{
             this.outStream.write( (message + "\n").getBytes("UTF-8"));
         } catch (Exception e){
