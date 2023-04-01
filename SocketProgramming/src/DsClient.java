@@ -57,18 +57,9 @@ public class DsClient {
                    findLargestServerType();
                 }
                 iterations++;
-                    jobString = convertStringtoArray(lastMessageFromServer); 
-                    if(jobString[0].equals("JOBN")){ // as instead of JOBN, it can be JCPL, we only want to schedule a job when we receive one
-                       currentJobIDs = Integer.parseInt(jobString[2]);
-                       sendMessage("SCHD " + currentJobIDs + " " +actualLargestType + " " + atServer);
-                       receiveMessageFromServer(); //Receive OK
-                       //as there can be more jobs than the no of servers in the largest server type
-                       //so we use mod to wrap around, once we reach the last server, we wrap back to serverID 0 
-                       atServer = (atServer+1) % actualLargestTypeCount; 
-                    }
+                    scheduleJobs();
             }
-            sendMessage("QUIT");
-            receiveMessageFromServer(); //Receive Quit
+            endConnection();
         }catch(Exception e){
             System.out.println(e);
         }
@@ -148,5 +139,32 @@ public class DsClient {
           }catch(Exception e){
             System.out.println(e);
           }
+    }
+
+    public void scheduleJobs(){
+        try{
+            jobString = convertStringtoArray(lastMessageFromServer); 
+            if(jobString[0].equals("JOBN")){ // as instead of JOBN, it can be JCPL, we only want to schedule a job when we receive one
+               currentJobIDs = Integer.parseInt(jobString[2]);
+               sendMessage("SCHD " + currentJobIDs + " " +actualLargestType + " " + atServer);
+               receiveMessageFromServer(); //Receive OK
+               //as there can be more jobs than the no of servers in the largest server type
+               //so we use mod to wrap around, once we reach the last server, we wrap back to serverID 0 
+               atServer = (atServer+1) % actualLargestTypeCount; 
+            }
+        }catch(Exception e){
+            System.out.println(e);
+        }
+        
+    }
+
+    public void endConnection(){
+        try{
+            sendMessage("QUIT");
+            receiveMessageFromServer(); //Receive Quit
+        }catch(Exception e){
+            System.out.println(e);
+        }
+        
     }
 }
