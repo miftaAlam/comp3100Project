@@ -37,7 +37,7 @@ public class DsClient {
 
     public static void main(String[] args){
         try{
-            DsClient c = new DsClient("192.168.212.221",50000);
+            DsClient c = new DsClient("localhost",50000);
             c.LRRalgorithm();
             c.s.close();
             c.inputStream.close();
