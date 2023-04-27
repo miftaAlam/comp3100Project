@@ -1,7 +1,5 @@
 import java.net.*;
 
-import javax.sound.sampled.ReverbType;
-
 import java.io.*;
 
 
@@ -91,7 +89,7 @@ public class DsClientFC {
             sendMessage("OK");
            // receive list of servers
             firstCapableServerinfo = convertStringtoArray(receiveMessageFromServer()); //receive the first server message
-            firstCapableServerID = Integer.parseInt(firstCapableServerinfo[4]);
+            firstCapableServerID = Integer.parseInt(firstCapableServerinfo[1]);
             firstCapableServerType = firstCapableServerinfo[0];
             //receive the rest server messages
             for(int i = 0; i < noOfServers-1; i++){
