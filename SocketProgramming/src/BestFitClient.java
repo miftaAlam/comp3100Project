@@ -11,18 +11,19 @@ public class BestFitClient {
     int noOfServers = 0; //Stores the no of server from the DATA message received from servers
     String currentMessage = null;
     String[] storingData = new String[3]; //an array of Strings that stores the "DATA 5 123" sent by the server, but split into individual strings 
-    String[] eachServer = null; //used to store the current Server details we are reading from the input stream line by line,
+    String[] currentServer = null; //used to store the current Server details we are reading from the input stream line by line,
                                 // amongst all the other server details sent
     
-    // Server Information
+    // Server Information (Change this to a Server Class)
     String actualBestFitServer = ""; //store the actual largest type of server, is updated by comparing itself to currentServerType, whether we can find a bigger one
     String currentServerType = ""; //stores the current server's type
     int currentServerCore = 0;
     int currentServerMemory = 0;
     int currentServerDisk = 0;
-    int smallestFitnessValue = 0; //stores the actual smallest fitness value
+    int smallestFitnessValue = Integer.MAX_VALUE; //stores the actual smallest fitness value
     int currentFitnessValue = 0; //stores the fitness value between the job and server we are currently checking
                                     // (Number of remaining cores for server - core requirement of job)
+    // Job Information (Change this to Job Class)
     String [] jobString = null; //an array of Strings that stores the "JOBN 101 3 380 2 900 2500" from the Server
     int currentJobIDs = 0; //stores the jobID from the "JOBN 101 3 380 2 900 2500" message we get from Server
     int jobCore = 0;
@@ -54,6 +55,67 @@ public class BestFitClient {
             Exception e){
             System.out.println(e);
         }
+    }
+
+    public void BFalgorithm(){
+        try{
+            authenticate();
+            while(!(lastMessageFromServer.equals("NONE"))){ 
+                sendMessage("REDY"); 
+                lastMessageFromServer = receiveMessageFromServer(); //JOBN details or can be JCPL
+                findBestFitServer();
+            }
+
+        }catch(Exception e){
+            System.out.println(e);
+        }
+    }
+    
+    
+
+    public void findBestFitServer(){
+        try{
+            jobString = convertStringtoArray(lastMessageFromServer); 
+            if(jobString[0].equals("JOBN")){
+            currentJobIDs = Integer.parseInt(jobString[2]);
+            jobCore = Integer.parseInt(jobString[4]);
+            jobMemory =  Integer.parseInt(jobString[5]);
+            jobDisk = Integer.parseInt(jobString[6]);
+            sendMessage("GETS Capable " + jobCore + " " + jobMemory + " " + jobDisk); //Send GETS Capable _ _ _
+            currentMessage = receiveMessageFromServer();  //receive DATA message
+            storingData = convertStringtoArray(currentMessage); //DATA message converted into an array of Strings
+            noOfServers = Integer.parseInt(storingData[1]);
+             
+            // we do not need the number of servers anymore, so nothing to extract from currentMessage?
+            // as we are assigning the current Job to the current first server from the Gets Capable message
+            sendMessage("OK");
+            // receive list of servers
+            for(int i = 0; i < noOfServers; i++){
+                currentMessage = receiveMessageFromServer();
+                currentServer = convertStringtoArray(currentMessage);
+                currentServerCore = Integer.parseInt(currentServer[4]); //No of Cores is in the 4th index (5th position) in the whole message
+                currentServerType = currentServer[0];
+                if(currentServerCore >= jobCore){
+                    calculateFitnessValue();
+                } else {
+                    // or do LSTJ here
+                    // if that capable but currently lacking in cores server is booting
+                    break; //server cannot be used as too little cores, but...
+                }   
+            }
+            }
+        } catch(Exception e){
+            System.out.println(e);
+        }
+    }
+
+    public void calculateFitnessValue(){
+         
+        currentFitnessValue = currentServerCore - jobCore;
+        if(currentFitnessValue < smallestFitnessValue){
+            smallestFitnessValue = currentFitnessValue;
+        }
+        
     }
 
     public void FCalgorithm(){
