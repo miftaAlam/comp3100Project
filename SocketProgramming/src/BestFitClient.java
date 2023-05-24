@@ -3,7 +3,7 @@ import java.net.*;
 import java.io.*;
 
 
-public class DsClientFC {
+public class BestFitClient {
     Socket s;
     DataOutputStream outStream;
     BufferedReader inputStream;
@@ -33,7 +33,7 @@ public class DsClientFC {
     String firstCapableServerType = null;
 
     //Constructor 
-    public DsClientFC(String address, int port){
+    public BestFitClient(String address, int port){
         try{
             s = new Socket(address, port);
             outStream = new DataOutputStream(s.getOutputStream());
