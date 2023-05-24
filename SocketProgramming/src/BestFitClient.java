@@ -14,17 +14,17 @@ public class BestFitClient {
     String[] eachServer = null; //used to store the current Server details we are reading from the input stream line by line,
                                 // amongst all the other server details sent
     
-    String actualLargestType = ""; //store the actual largest type of server, is updated by comparing itself to currentServerType, whether we can find a bigger one
-    String currentServerType = ""; //stores the current server's Type we are checking
-    
-    int actualLargestTypeCount = 0; //counts the total number of servers in the largest type, reset back to 1 whenevever we find a larger type
-    int actualMaxCores = 0; //stores the actual largest number of cores in the largest server type
-    int currentServerCores = 0; //stores the number of cores in the current server we are checking
-    int iterations = 0; //used to make sure we only GETS during the first iteration, to identify the largest group
-    int currentJobIDs = 0; //stores the jobID from the "JOBN 101 3 380 2 900 2500" message we get from Server
+    // Server Information
+    String actualBestFitServer = ""; //store the actual largest type of server, is updated by comparing itself to currentServerType, whether we can find a bigger one
+    String currentServerType = ""; //stores the current server's type
+    int currentServerCore = 0;
+    int currentServerMemory = 0;
+    int currentServerDisk = 0;
+    int smallestFitnessValue = 0; //stores the actual smallest fitness value
+    int currentFitnessValue = 0; //stores the fitness value between the job and server we are currently checking
+                                    // (Number of remaining cores for server - core requirement of job)
     String [] jobString = null; //an array of Strings that stores the "JOBN 101 3 380 2 900 2500" from the Server
-    int atServer = 0; // keeps track of the serverID of the current server we are assigning the Job to 
-    
+    int currentJobIDs = 0; //stores the jobID from the "JOBN 101 3 380 2 900 2500" message we get from Server
     int jobCore = 0;
     int jobMemory = 0;
     int jobDisk = 0;
@@ -45,7 +45,7 @@ public class BestFitClient {
 
     public static void main(String[] args){
         try{
-            DsClientFC c = new DsClientFC("192.168.138.221",50000);
+            BestFitClient c = new BestFitClient("192.168.138.221",50000);
             c.FCalgorithm();;
             c.s.close();
             c.inputStream.close();
