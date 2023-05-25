@@ -18,5 +18,9 @@ public class Server {
         this.waitingJobs = Integer.parseInt(serverInfoArray[7]);
         this.runningJobs = Integer.parseInt(serverInfoArray[8]);   
     }
+
+    public Server(){
+        
+    }
 }
 
