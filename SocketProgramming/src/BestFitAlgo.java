@@ -68,7 +68,6 @@ public class BestFitAlgo {
     public void findBestFitServer(){
         try{
             jobString = convertStringtoArray(lastMessageFromServer); 
-            currentJob = new NormalJob(jobString);
             if(jobString[0].equals("JOBN")){
             currentJob = new NormalJob(jobString);
             sendMessage("GETS Capable " + currentJob.jobCore + " " + currentJob.jobMemory + " " + currentJob.jobDisk); //Send GETS Capable _ _ _
@@ -108,6 +107,8 @@ public class BestFitAlgo {
     public void LSTJSudo(){
 
     }
+
+    
 
 
     

@@ -24,5 +24,22 @@ public class Server {
     public Server(){
         
     }
+
+
+    public boolean hasEnoughResources(NormalJob currJob){
+        if(this.serverCore>= currJob.jobCore  && this.serverMemory >= currJob.jobMemory && this.serverDisk >= currJob.jobDisk){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isInactiveOrIdle(){
+        // as we want to prioritise scheduling to the servers with no local queues first
+        // only if we cannot find a capable + inactive server, we start choosing a booting/running server with the shortest queue
+        if(this.serverState.equals("inactive")|| this.serverState.equals("idle")){
+            return true;
+        }
+        return false;
+    }
 }
 
