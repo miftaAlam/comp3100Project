@@ -98,11 +98,11 @@ public class BestFitAlgo {
     }
 
     public void calculateFitnessValue(){
-        // currentFitnessValue = currentServerCore - jobCore;
-        // if(currentFitnessValue < smallestFitnessValue){
-        //     smallestFitnessValue = currentFitnessValue;
-        //     actualBestFitServerType = currentServerType;
-        // }
+        currentFitnessValue = currentServer.serverCore - currentJob.jobCore;
+        if(currentFitnessValue < smallestFitnessValue){
+            smallestFitnessValue = currentFitnessValue;
+            actualBestFitServer = currentServer;
+        }
     }
 
     public void LSTJSudo(){
