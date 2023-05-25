@@ -1,5 +1,4 @@
 import java.net.*;
-import java.util.ArrayList;
 import java.io.*;
 
 
@@ -22,8 +21,6 @@ public class BestFitAlgo {
     // Job Information (Change this to Job Class)
     String [] jobString = null; //an array of Strings that stores the "JOBN 101 3 380 2 900 2500" from the Server
     NormalJob currentJob; //stores all the information about the current job
-    ArrayList<WaitingRunningJob> lstjResult = new ArrayList<WaitingRunningJob>();
-
     //Constructor 
     public BestFitAlgo(String address, int port){
         try{
@@ -72,7 +69,6 @@ public class BestFitAlgo {
         
     }
     
-
     public void findBestFitServer(){
         try{
             jobString = convertStringtoArray(lastMessageFromServer); 
@@ -94,10 +90,12 @@ public class BestFitAlgo {
                     } 
                 }
                 sendMessage("OK");
+                receiveMessageFromServer(); //receive dot
             }
             // receive dot regardless 
-            receiveMessageFromServer(); //receive dot
+           
             if(noOfServers == 0){
+                receiveMessageFromServer(); //receive dot
                 int actualShortestLocalQueue = Integer.MAX_VALUE;
                 sendMessage("GETS Capable " + currentJob.jobCore + " " + currentJob.jobMemory + " " + currentJob.jobDisk);
                 setUpDataArrays();
