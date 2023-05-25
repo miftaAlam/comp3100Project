@@ -1,8 +1,5 @@
 import java.net.*;
 import java.util.ArrayList;
-
-import javax.sound.midi.Track;
-
 import java.io.*;
 
 
@@ -80,59 +77,46 @@ public class BestFitAlgo {
         try{
             jobString = convertStringtoArray(lastMessageFromServer); 
             if(jobString[0].equals("JOBN")){
-                int smallestFitnessValue = Integer.MAX_VALUE; //stores the actual smallest fitness value
-                currentJob = new NormalJob(jobString);
-                sendMessage("GETS Avail " + currentJob.jobCore + " " + currentJob.jobMemory + " " + currentJob.jobDisk); //Send GETS Avail _ _ _
-                setUpDataArrays();
+            int smallestFitnessValue = Integer.MAX_VALUE; //stores the actual smallest fitness value
+            // local variable to see if we found a CAPABLE FOR JOB + INACTIVE/IDLE SERVER
+            //boolean capableInactive = false;
+            currentJob = new NormalJob(jobString);
+            sendMessage("GETS Avail " + currentJob.jobCore + " " + currentJob.jobMemory + " " + currentJob.jobDisk); //Send GETS Avail _ _ _
+            setUpDataArrays();
             // receive list of servers
-                    if(noOfServers != 0){
-                        traverseServers("Avail", smallestFitnessValue, 0);
+            if(noOfServers != 0){
+                for(int i = 0; i < noOfServers; i++){
+                    setUpServerArrays();
+                    currentFitnessValue = currentServer.serverCore - currentJob.jobCore;
+                    if(currentFitnessValue < smallestFitnessValue){
+                        smallestFitnessValue = currentFitnessValue;
+                        actualBestFitServer = currentServer;
+                    } 
+                }
+                sendMessage("OK");
+            }
+            // receive dot regardless 
+            receiveMessageFromServer(); //receive dot
+            if(noOfServers == 0){
+                int actualShortestLocalQueue = Integer.MAX_VALUE;
+                sendMessage("GETS Capable " + currentJob.jobCore + " " + currentJob.jobMemory + " " + currentJob.jobDisk);
+                setUpDataArrays();
+                 // Find the capable server with the SHORTEST queue
+                for(int i = 0; i < noOfServers; i++){
+                    setUpServerArrays();  
+                    if(currentServer.totalJobs < actualShortestLocalQueue){
+                        actualShortestLocalQueue = currentServer.totalJobs;
+                        actualBestFitServer = currentServer;
                     }
-          
-                    if(noOfServers == 0){
-                        receiveMessageFromServer(); //receive dot
-                        int actualShortestLocalQueue = Integer.MAX_VALUE;
-                        sendMessage("GETS Capable " + currentJob.jobCore + " " + currentJob.jobMemory + " " + currentJob.jobDisk);
-                        setUpDataArrays();
-                        // Find the capable server with the SHORTEST queue
-                        traverseServers("Capable",0, actualShortestLocalQueue);
-                    }
-                    scheduleJobs();
+                }
+                sendMessage("OK");
+                // receive dot regardless 
+                receiveMessageFromServer(); //receive dot
+            }
+            scheduleJobs();
             }
         } catch(Exception e){
             System.out.println(e);
-        }
-    }
-
-    public void traverseServers(String keyword, int smallestFitnessValue, int actualShortestLocalQueue){
-        for(int i = 0; i < noOfServers; i++){
-            currentMessage = receiveMessageFromServer();
-            currentServerInfoArray = convertStringtoArray(currentMessage);
-            currentServer = new Server(currentServerInfoArray);  
-            if(keyword.equals("Avail")){
-                findBestFitServer(smallestFitnessValue);
-            } else {
-                findServerWithShortestLocalQueue(actualShortestLocalQueue);
-            }
-        }
-        sendMessage("OK");
-        // receive dot regardless 
-        receiveMessageFromServer(); //receive dot
-    }
-    
-
-    public void findBestFitServer(int smallestFitnessValue){
-        currentFitnessValue = currentServer.serverCore - currentJob.jobCore;
-        if(currentFitnessValue < smallestFitnessValue){
-            smallestFitnessValue = currentFitnessValue;
-            actualBestFitServer = currentServer;
-        }
-    }
-
-    public void findServerWithShortestLocalQueue(int actualShortestLocalQueue){
-        if(currentServer.totalJobs < actualShortestLocalQueue){
-            actualShortestLocalQueue = currentServer.totalJobs;
-            actualBestFitServer = currentServer;
         }
     }
 
@@ -141,6 +125,12 @@ public class BestFitAlgo {
         storingDataArray = convertStringtoArray(currentMessage); //DATA message converted into an array of Strings
         noOfServers = Integer.parseInt(storingDataArray[1]);
         sendMessage("OK");
+    }
+
+    public void setUpServerArrays(){
+        currentMessage = receiveMessageFromServer();
+        currentServerInfoArray = convertStringtoArray(currentMessage);
+        currentServer = new Server(currentServerInfoArray);  
     }
 
     public void sendMessage(String message){
