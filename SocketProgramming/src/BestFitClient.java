@@ -15,7 +15,7 @@ public class BestFitClient {
                                 // amongst all the other server details sent
     
     // Server Information (Change this to a Server Class)
-    String actualBestFitServer = ""; //store the actual largest type of server, is updated by comparing itself to currentServerType, whether we can find a bigger one
+    String actualBestFitServerType = ""; //store the actual largest type of server, is updated by comparing itself to currentServerType, whether we can find a bigger one
     String currentServerType = ""; //stores the current server's type
     int currentServerCore = 0;
     int currentServerMemory = 0;
@@ -95,12 +95,14 @@ public class BestFitClient {
                 currentServer = convertStringtoArray(currentMessage);
                 currentServerCore = Integer.parseInt(currentServer[4]); //No of Cores is in the 4th index (5th position) in the whole message
                 currentServerType = currentServer[0];
+                // if the current server is in booting stage - do LSTJ on it and see
+                // if not do fitnessvalue calculation
                 if(currentServerCore >= jobCore){
                     calculateFitnessValue();
                 } else {
                     // or do LSTJ here
                     // if that capable but currently lacking in cores server is booting
-                    break; //server cannot be used as too little cores, but...
+                    continue; //server cannot be used as too little cores, but...
                 }   
             }
             }
@@ -110,12 +112,15 @@ public class BestFitClient {
     }
 
     public void calculateFitnessValue(){
-         
         currentFitnessValue = currentServerCore - jobCore;
         if(currentFitnessValue < smallestFitnessValue){
             smallestFitnessValue = currentFitnessValue;
+            actualBestFitServerType = currentServerType;
         }
-        
+    }
+
+    public void LSTJSudo(){
+
     }
 
     public void FCalgorithm(){
