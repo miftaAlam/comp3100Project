@@ -18,7 +18,7 @@ public class Server {
         this.serverDisk = Integer.parseInt(serverInfoArray[6]);
         this.waitingJobs = Integer.parseInt(serverInfoArray[7]);
         this.runningJobs = Integer.parseInt(serverInfoArray[8]);
-        this.totalJobs = 0;   
+        this.totalJobs = this.waitingJobs + this.runningJobs;
     }
 
     public Server(){

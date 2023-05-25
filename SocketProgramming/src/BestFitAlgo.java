@@ -17,7 +17,6 @@ public class BestFitAlgo {
                                                 // amongst all the other server details sent
     Server actualBestFitServer; //store the actual best fit server, is updated by comparing itself to currentServer, whether we can find a server with a smaller best fit
     Server currentServer; //stores the Current Server we are iterating through
-    int smallestFitnessValue = Integer.MAX_VALUE; //stores the actual smallest fitness value
     int currentFitnessValue = 0; //stores the fitness value between the job and server we are currently checking
                                     // (Number of remaining cores for server - core requirement of job)
     // Job Information (Change this to Job Class)
@@ -38,8 +37,8 @@ public class BestFitAlgo {
 
     public static void main(String[] args){
         try{
-            BestFitAlgo c = new BestFitAlgo("192.168.138.221",50000);
-            //c.FCalgorithm();;
+            BestFitAlgo c = new BestFitAlgo("10.126.131.233",50000);
+            c.BFImprovedAlgorithm();;
             c.s.close();
             c.inputStream.close();
             c.outStream.close();
@@ -49,7 +48,7 @@ public class BestFitAlgo {
         }
     }
 
-    public void BFalgorithm(){
+    public void BFImprovedAlgorithm(){
         try{
             authenticate();
             while(!(lastMessageFromServer.equals("NONE"))){ 
@@ -57,52 +56,89 @@ public class BestFitAlgo {
                 lastMessageFromServer = receiveMessageFromServer(); //JOBN details or can be JCPL
                 findBestFitServer();
             }
-
+            endConnection();
         }catch(Exception e){
             System.out.println(e);
         }
     }
     
+    public void scheduleJobs(){
+        try{
+            sendMessage("SCHD " + currentJob.jobID + " " +actualBestFitServer.serverType + " " + actualBestFitServer.serverID);
+            receiveMessageFromServer(); //Receive OK 
+        }catch(Exception e){
+            System.out.println(e);
+        }
+        
+    }
     
 
     public void findBestFitServer(){
         try{
             jobString = convertStringtoArray(lastMessageFromServer); 
             if(jobString[0].equals("JOBN")){
+            int smallestFitnessValue = Integer.MAX_VALUE; //stores the actual smallest fitness value
+            // local variable to see if we found a CAPABLE FOR JOB + INACTIVE/IDLE SERVER
+            //boolean capableInactive = false;
             currentJob = new NormalJob(jobString);
-            sendMessage("GETS Capable " + currentJob.jobCore + " " + currentJob.jobMemory + " " + currentJob.jobDisk); //Send GETS Capable _ _ _
+            sendMessage("GETS Avail " + currentJob.jobCore + " " + currentJob.jobMemory + " " + currentJob.jobDisk); //Send GETS Avail _ _ _
             currentMessage = receiveMessageFromServer();  //receive DATA message
             storingDataArray = convertStringtoArray(currentMessage); //DATA message converted into an array of Strings
             noOfServers = Integer.parseInt(storingDataArray[1]);
             sendMessage("OK");
             // receive list of servers
-            for(int i = 0; i < noOfServers; i++){
-                currentMessage = receiveMessageFromServer();
-                currentServerInfoArray = convertStringtoArray(currentMessage);
-                currentServer = new Server(currentServerInfoArray);
-                // if the current server is in booting stage - do LSTJ on it and see
-                // if not do fitnessvalue calculation
-                if(currentServer.serverCore >= currentJob.jobCore){
-                    calculateFitnessValue();
-                } else {
-                    // or do LSTJ here
-                    // if that capable but currently lacking in cores server is booting
-                    continue; //server cannot be used as too little cores, but...
-                }   
+            if(noOfServers != 0){
+                for(int i = 0; i < noOfServers; i++){
+                    currentMessage = receiveMessageFromServer();
+                    currentServerInfoArray = convertStringtoArray(currentMessage);
+                    currentServer = new Server(currentServerInfoArray);
+                    currentFitnessValue = currentServer.serverCore - currentJob.jobCore;
+                    if(currentFitnessValue < smallestFitnessValue){
+                        smallestFitnessValue = currentFitnessValue;
+                        actualBestFitServer = currentServer;
+                    } 
+                }
+                sendMessage("OK");
             }
+            // receive dot regardless 
+            receiveMessageFromServer(); //receive dot
+            if(noOfServers == 0){
+                int actualShortestLocalQueue = Integer.MAX_VALUE;
+                sendMessage("GETS Capable " + currentJob.jobCore + " " + currentJob.jobMemory + " " + currentJob.jobDisk);
+                currentMessage = receiveMessageFromServer();  //receive DATA message
+                storingDataArray = convertStringtoArray(currentMessage); //DATA message converted into an array of Strings
+                noOfServers = Integer.parseInt(storingDataArray[1]);
+                sendMessage("OK");
+                 // Find the capable server with the SHORTEST queue
+                for(int i = 0; i < noOfServers; i++){
+                    currentMessage = receiveMessageFromServer();
+                    currentServerInfoArray = convertStringtoArray(currentMessage);
+                    currentServer = new Server(currentServerInfoArray);  
+                    if(currentServer.totalJobs < actualShortestLocalQueue){
+                        actualShortestLocalQueue = currentServer.totalJobs;
+                        actualBestFitServer = currentServer;
+                    }
+                }
+                sendMessage("OK");
+                // receive dot regardless 
+                receiveMessageFromServer(); //receive dot
+            }
+            scheduleJobs();
             }
         } catch(Exception e){
             System.out.println(e);
         }
     }
 
-    public void calculateFitnessValue(){
-        currentFitnessValue = currentServer.serverCore - currentJob.jobCore;
-        if(currentFitnessValue < smallestFitnessValue){
-            smallestFitnessValue = currentFitnessValue;
-            actualBestFitServer = currentServer;
-        }
-    }
+    
+
+    // public void calculateSetFitnessValue(){
+    //     currentFitnessValue = currentServer.serverCore - currentJob.jobCore;
+    //     if(currentFitnessValue < smallestFitnessValue){
+    //         smallestFitnessValue = currentFitnessValue;
+    //         actualBestFitServer = currentServer;
+    //     }
+    // }
 
     public void LSTJSudo(){
 
