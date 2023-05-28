@@ -1,10 +1,5 @@
 import java.net.*;
-import java.util.ArrayList;
-
-import javax.management.openmbean.ArrayType;
-
 import java.io.*;
-import java.lang.reflect.WildcardType;
 
 
 public class BestFitAlgo {
@@ -21,15 +16,11 @@ public class BestFitAlgo {
                                                 // amongst all the other server details sent
     Server actualBestFitServer; //store the actual best fit server, is updated by comparing itself to currentServer, whether we can find a server with a smaller best fit
     Server currentServer; //stores the Current Server we are iterating through
-    Server releasedServer; //from JCPL
     int currentFitnessValue = 0; //stores the fitness value between the job and server we are currently checking
                                     // (Number of remaining cores for server - core requirement of job)
     // Job Information (Change this to Job Class)
     String [] jobString = null; //an array of Strings that stores the "JOBN 101 3 380 2 900 2500" from the Server
     NormalJob currentJob; //stores all the information about the current job
-    WaitingRunningJob currentLSTJob;
-    int noOfLSTJ = 0;
-    String[] currentLSTJobArray = null;
     //Constructor 
     public BestFitAlgo(String address, int port){
         try{
@@ -43,7 +34,7 @@ public class BestFitAlgo {
 
     public static void main(String[] args){
         try{
-            BestFitAlgo c = new BestFitAlgo("192.168.161.221",50000);
+            BestFitAlgo c = new BestFitAlgo("localhost",50000);
             c.BFImprovedAlgorithm();;
             c.s.close();
             c.inputStream.close();
@@ -94,71 +85,8 @@ public class BestFitAlgo {
             } else {
                 findServerWIthShortestLocalQueue();
             }
-                scheduleJobs();
+            scheduleJobs();
             }
-            // } else if(jobString[0].equals("JCPL")){
-            //     // Check the released server, if that server has NO waiting or running job,
-            //     releasedServer = new Server();
-            //     releasedServer.serverType = jobString[3];
-            //     releasedServer.serverID = Integer.parseInt(jobString[4]);
-            //     sendMessage("LSTJ "+ releasedServer.serverType + " " + releasedServer.serverID);
-            //     setUpDataArrays();
-            //     if(noOfServers != 0){
-            //         // means that we do not migrate any job to this server, as already has a local queue with jobs waiting for it
-            //        // sendMessage("OK");
-            //         for(int i = 0; i < noOfServers; i++){
-            //             receiveMessageFromServer();
-            //         }
-            //         sendMessage("OK");
-            //         receiveMessageFromServer(); // receive the DOT 
-            //     } else {
-            //         // sendMessage("OK"); // . is sent right after Data
-            //         receiveMessageFromServer(); //receive DOT
-            //         ArrayList<Server> listOfServers = new ArrayList<Server>();
-            //         sendMessage("GETS All");
-            //         setUpDataArrays();
-            //         for(int i = 0; i < noOfServers; i++){
-            //             setUpServerArrays();
-            //             listOfServers.add(currentServer);
-            //         }
-            //         sendMessage("OK");
-            //         receiveMessageFromServer();
-            //         for(Server currentServer: listOfServers){
-            //            // setUpServerArrays();
-            //             if(currentServer.waitingJobs >=1){
-            //                 sendMessage("LSTJ "+ currentServer.serverType + " " + currentServer.serverID);
-            //                 setUpDataArrays();
-            //                 ArrayList<WaitingRunningJob> lstjoblist = new ArrayList<>();
-            //                 for(int j  = 0; j < noOfLSTJ; j++){
-            //                     setUpLSTJobsArrays();
-            //                     lstjoblist.add(currentLSTJob);
-            //                 }
-            //                 sendMessage("OK");
-            //                 receiveMessageFromServer();
-                            
-
-            //                 for(WaitingRunningJob currentLSTJob: lstjoblist){
-            //                     // setUpLSTJobsArrays();
-            //                     if(currentLSTJob.jobState == 2){
-            //                         continue;
-            //                     } else {
-            //                         if(releasedServer.hasEnoughResources(currentLSTJob) == true){
-            //                             sendMessage("MIGJ " + currentServer.serverType + " " + currentServer.serverID + " " + releasedServer.serverType + " " + releasedServer.serverID);
-            //                             receiveMessageFromServer(); //receive OK
-            //                         }
-            //                     }
-            //                 }
-                
-                            
-            //             }
-            //         }
-            //     }
-            //     // GETS All,
-            //     // If any server has >=1 running job and >=1 waiting job,
-            //        // LSTJ, and go through all the jobs listed, only the ones w state "waiting", see if job requirement matches the released server
-            //        // if you find that job, migrate that job to the released server
-            //     // if no server has that, do nothing 
-            // }
         } catch(Exception e){
             System.out.println(e);
         }
@@ -200,7 +128,6 @@ public class BestFitAlgo {
         currentMessage = receiveMessageFromServer();  //receive DATA message
         storingDataArray = convertStringtoArray(currentMessage); //DATA message converted into an array of Strings
         noOfServers = Integer.parseInt(storingDataArray[1]);
-        noOfLSTJ = Integer.parseInt(storingDataArray[1]);
         sendMessage("OK");
     }
 
@@ -208,12 +135,6 @@ public class BestFitAlgo {
         currentMessage = receiveMessageFromServer();
         currentServerInfoArray = convertStringtoArray(currentMessage);
         currentServer = new Server(currentServerInfoArray);  
-    }
-
-    public void setUpLSTJobsArrays(){
-        currentMessage = receiveMessageFromServer();
-        currentLSTJobArray = convertStringtoArray(currentMessage);
-        currentLSTJob = new WaitingRunningJob(currentLSTJobArray);  
     }
 
     public void sendMessage(String message){
