@@ -1,5 +1,8 @@
 import java.net.*;
 import java.util.ArrayList;
+
+import javax.management.openmbean.ArrayType;
+
 import java.io.*;
 import java.lang.reflect.WildcardType;
 
@@ -40,7 +43,7 @@ public class BestFitAlgo {
 
     public static void main(String[] args){
         try{
-            BestFitAlgo c = new BestFitAlgo("localhost",50000);
+            BestFitAlgo c = new BestFitAlgo("192.168.161.221",50000);
             c.BFImprovedAlgorithm();;
             c.s.close();
             c.inputStream.close();
@@ -101,24 +104,40 @@ public class BestFitAlgo {
                 setUpDataArrays();
                 if(noOfServers != 0){
                     // means that we do not migrate any job to this server, as already has a local queue with jobs waiting for it
-                    sendMessage("OK");
+                   // sendMessage("OK");
                     for(int i = 0; i < noOfServers; i++){
                         receiveMessageFromServer();
                     }
                     sendMessage("OK");
                     receiveMessageFromServer(); // receive the DOT 
                 } else {
-                   // sendMessage("OK"); // . is sent right after Data
+                    // sendMessage("OK"); // . is sent right after Data
                     receiveMessageFromServer(); //receive DOT
+                    ArrayList<Server> listOfServers = new ArrayList<Server>();
                     sendMessage("GETS All");
                     setUpDataArrays();
                     for(int i = 0; i < noOfServers; i++){
                         setUpServerArrays();
+                        listOfServers.add(currentServer);
+                    }
+                    sendMessage("OK");
+                    receiveMessageFromServer();
+                    for(Server currentServer: listOfServers){
+                       // setUpServerArrays();
                         if(currentServer.runningJobs >=1 && currentServer.waitingJobs >=1){
                             sendMessage("LSTJ "+ currentServer.serverType + " " + currentServer.serverID);
                             setUpDataArrays();
-                            for(int k = 0; k < noOfLSTJ; k++){
+                            ArrayList<WaitingRunningJob> lstjoblist = new ArrayList<>();
+                            for(int j  = 0; j < noOfLSTJ; j++){
                                 setUpLSTJobsArrays();
+                                lstjoblist.add(currentLSTJob);
+                            }
+                            sendMessage("OK");
+                            receiveMessageFromServer();
+                            
+
+                            for(WaitingRunningJob currentLSTJob: lstjoblist){
+                                // setUpLSTJobsArrays();
                                 if(currentLSTJob.jobState == 2){
                                     continue;
                                 } else {
@@ -127,6 +146,7 @@ public class BestFitAlgo {
                                     }
                                 }
                             }
+                
                             
                         }
                     }
@@ -191,7 +211,7 @@ public class BestFitAlgo {
     public void setUpLSTJobsArrays(){
         currentMessage = receiveMessageFromServer();
         currentLSTJobArray = convertStringtoArray(currentMessage);
-        currentLSTJob = new WaitingRunningJob(currentServerInfoArray);  
+        currentLSTJob = new WaitingRunningJob(currentLSTJobArray);  
     }
 
     public void sendMessage(String message){
