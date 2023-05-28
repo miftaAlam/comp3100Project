@@ -95,68 +95,70 @@ public class BestFitAlgo {
                 findServerWIthShortestLocalQueue();
             }
                 scheduleJobs();
-            } else if(jobString[0].equals("JCPL")){
-                // Check the released server, if that server has NO waiting or running job,
-                releasedServer = new Server();
-                releasedServer.serverType = jobString[3];
-                releasedServer.serverID = Integer.parseInt(jobString[4]);
-                sendMessage("LSTJ "+ releasedServer.serverType + " " + releasedServer.serverID);
-                setUpDataArrays();
-                if(noOfServers != 0){
-                    // means that we do not migrate any job to this server, as already has a local queue with jobs waiting for it
-                   // sendMessage("OK");
-                    for(int i = 0; i < noOfServers; i++){
-                        receiveMessageFromServer();
-                    }
-                    sendMessage("OK");
-                    receiveMessageFromServer(); // receive the DOT 
-                } else {
-                    // sendMessage("OK"); // . is sent right after Data
-                    receiveMessageFromServer(); //receive DOT
-                    ArrayList<Server> listOfServers = new ArrayList<Server>();
-                    sendMessage("GETS All");
-                    setUpDataArrays();
-                    for(int i = 0; i < noOfServers; i++){
-                        setUpServerArrays();
-                        listOfServers.add(currentServer);
-                    }
-                    sendMessage("OK");
-                    receiveMessageFromServer();
-                    for(Server currentServer: listOfServers){
-                       // setUpServerArrays();
-                        if(currentServer.runningJobs >=1 && currentServer.waitingJobs >=1){
-                            sendMessage("LSTJ "+ currentServer.serverType + " " + currentServer.serverID);
-                            setUpDataArrays();
-                            ArrayList<WaitingRunningJob> lstjoblist = new ArrayList<>();
-                            for(int j  = 0; j < noOfLSTJ; j++){
-                                setUpLSTJobsArrays();
-                                lstjoblist.add(currentLSTJob);
-                            }
-                            sendMessage("OK");
-                            receiveMessageFromServer();
+            }
+            // } else if(jobString[0].equals("JCPL")){
+            //     // Check the released server, if that server has NO waiting or running job,
+            //     releasedServer = new Server();
+            //     releasedServer.serverType = jobString[3];
+            //     releasedServer.serverID = Integer.parseInt(jobString[4]);
+            //     sendMessage("LSTJ "+ releasedServer.serverType + " " + releasedServer.serverID);
+            //     setUpDataArrays();
+            //     if(noOfServers != 0){
+            //         // means that we do not migrate any job to this server, as already has a local queue with jobs waiting for it
+            //        // sendMessage("OK");
+            //         for(int i = 0; i < noOfServers; i++){
+            //             receiveMessageFromServer();
+            //         }
+            //         sendMessage("OK");
+            //         receiveMessageFromServer(); // receive the DOT 
+            //     } else {
+            //         // sendMessage("OK"); // . is sent right after Data
+            //         receiveMessageFromServer(); //receive DOT
+            //         ArrayList<Server> listOfServers = new ArrayList<Server>();
+            //         sendMessage("GETS All");
+            //         setUpDataArrays();
+            //         for(int i = 0; i < noOfServers; i++){
+            //             setUpServerArrays();
+            //             listOfServers.add(currentServer);
+            //         }
+            //         sendMessage("OK");
+            //         receiveMessageFromServer();
+            //         for(Server currentServer: listOfServers){
+            //            // setUpServerArrays();
+            //             if(currentServer.waitingJobs >=1){
+            //                 sendMessage("LSTJ "+ currentServer.serverType + " " + currentServer.serverID);
+            //                 setUpDataArrays();
+            //                 ArrayList<WaitingRunningJob> lstjoblist = new ArrayList<>();
+            //                 for(int j  = 0; j < noOfLSTJ; j++){
+            //                     setUpLSTJobsArrays();
+            //                     lstjoblist.add(currentLSTJob);
+            //                 }
+            //                 sendMessage("OK");
+            //                 receiveMessageFromServer();
                             
 
-                            for(WaitingRunningJob currentLSTJob: lstjoblist){
-                                // setUpLSTJobsArrays();
-                                if(currentLSTJob.jobState == 2){
-                                    continue;
-                                } else {
-                                    if(releasedServer.hasEnoughResources(currentLSTJob) == true){
-                                        sendMessage("MIGJ " + currentServer.serverType + " " + currentServer.serverID + " " + releasedServer.serverType + " " + releasedServer.serverID);
-                                    }
-                                }
-                            }
+            //                 for(WaitingRunningJob currentLSTJob: lstjoblist){
+            //                     // setUpLSTJobsArrays();
+            //                     if(currentLSTJob.jobState == 2){
+            //                         continue;
+            //                     } else {
+            //                         if(releasedServer.hasEnoughResources(currentLSTJob) == true){
+            //                             sendMessage("MIGJ " + currentServer.serverType + " " + currentServer.serverID + " " + releasedServer.serverType + " " + releasedServer.serverID);
+            //                             receiveMessageFromServer(); //receive OK
+            //                         }
+            //                     }
+            //                 }
                 
                             
-                        }
-                    }
-                }
-                // GETS All,
-                // If any server has >=1 running job and >=1 waiting job,
-                   // LSTJ, and go through all the jobs listed, only the ones w state "waiting", see if job requirement matches the released server
-                   // if you find that job, migrate that job to the released server
-                // if no server has that, do nothing 
-            }
+            //             }
+            //         }
+            //     }
+            //     // GETS All,
+            //     // If any server has >=1 running job and >=1 waiting job,
+            //        // LSTJ, and go through all the jobs listed, only the ones w state "waiting", see if job requirement matches the released server
+            //        // if you find that job, migrate that job to the released server
+            //     // if no server has that, do nothing 
+            // }
         } catch(Exception e){
             System.out.println(e);
         }
