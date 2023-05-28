@@ -1,5 +1,7 @@
 import java.net.*;
+import java.util.ArrayList;
 import java.io.*;
+import java.lang.reflect.WildcardType;
 
 
 public class BestFitAlgo {
@@ -22,6 +24,9 @@ public class BestFitAlgo {
     // Job Information (Change this to Job Class)
     String [] jobString = null; //an array of Strings that stores the "JOBN 101 3 380 2 900 2500" from the Server
     NormalJob currentJob; //stores all the information about the current job
+    WaitingRunningJob currentLSTJob;
+    int noOfLSTJ = 0;
+    String[] currentLSTJobArray = null;
     //Constructor 
     public BestFitAlgo(String address, int port){
         try{
@@ -102,6 +107,29 @@ public class BestFitAlgo {
                     }
                     sendMessage("OK");
                     receiveMessageFromServer(); // receive the DOT 
+                } else {
+                   // sendMessage("OK"); // . is sent right after Data
+                    receiveMessageFromServer(); //receive DOT
+                    sendMessage("GETS All");
+                    setUpDataArrays();
+                    for(int i = 0; i < noOfServers; i++){
+                        setUpServerArrays();
+                        if(currentServer.runningJobs >=1 && currentServer.waitingJobs >=1){
+                            sendMessage("LSTJ "+ currentServer.serverType + " " + currentServer.serverID);
+                            setUpDataArrays();
+                            for(int k = 0; k < noOfLSTJ; k++){
+                                setUpLSTJobsArrays();
+                                if(currentLSTJob.jobState == 2){
+                                    continue;
+                                } else {
+                                    if(releasedServer.hasEnoughResources(currentLSTJob) == true){
+                                        sendMessage("MIGJ " + currentServer.serverType + " " + currentServer.serverID + " " + releasedServer.serverType + " " + releasedServer.serverID);
+                                    }
+                                }
+                            }
+                            
+                        }
+                    }
                 }
                 // GETS All,
                 // If any server has >=1 running job and >=1 waiting job,
@@ -150,6 +178,7 @@ public class BestFitAlgo {
         currentMessage = receiveMessageFromServer();  //receive DATA message
         storingDataArray = convertStringtoArray(currentMessage); //DATA message converted into an array of Strings
         noOfServers = Integer.parseInt(storingDataArray[1]);
+        noOfLSTJ = Integer.parseInt(storingDataArray[1]);
         sendMessage("OK");
     }
 
@@ -157,6 +186,12 @@ public class BestFitAlgo {
         currentMessage = receiveMessageFromServer();
         currentServerInfoArray = convertStringtoArray(currentMessage);
         currentServer = new Server(currentServerInfoArray);  
+    }
+
+    public void setUpLSTJobsArrays(){
+        currentMessage = receiveMessageFromServer();
+        currentLSTJobArray = convertStringtoArray(currentMessage);
+        currentLSTJob = new WaitingRunningJob(currentServerInfoArray);  
     }
 
     public void sendMessage(String message){

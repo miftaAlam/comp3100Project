@@ -26,7 +26,7 @@ public class Server {
     }
 
 
-    public boolean hasEnoughResources(NormalJob currJob){
+    public boolean hasEnoughResources(WaitingRunningJob currJob){
         if(this.serverCore>= currJob.jobCore  && this.serverMemory >= currJob.jobMemory && this.serverDisk >= currJob.jobDisk){
             return true;
         }
