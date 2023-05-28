@@ -16,6 +16,7 @@ public class BestFitAlgo {
                                                 // amongst all the other server details sent
     Server actualBestFitServer; //store the actual best fit server, is updated by comparing itself to currentServer, whether we can find a server with a smaller best fit
     Server currentServer; //stores the Current Server we are iterating through
+    Server releasedServer; //from JCPL
     int currentFitnessValue = 0; //stores the fitness value between the job and server we are currently checking
                                     // (Number of remaining cores for server - core requirement of job)
     // Job Information (Change this to Job Class)
@@ -85,7 +86,28 @@ public class BestFitAlgo {
             } else {
                 findServerWIthShortestLocalQueue();
             }
-            scheduleJobs();
+                scheduleJobs();
+            } else if(jobString[0].equals("JCPL")){
+                // Check the released server, if that server has NO waiting or running job,
+                releasedServer = new Server();
+                releasedServer.serverType = jobString[3];
+                releasedServer.serverID = Integer.parseInt(jobString[4]);
+                sendMessage("LSTJ "+ releasedServer.serverType + " " + releasedServer.serverID);
+                setUpDataArrays();
+                if(noOfServers != 0){
+                    // means that we do not migrate any job to this server, as already has a local queue with jobs waiting for it
+                    sendMessage("OK");
+                    for(int i = 0; i < noOfServers; i++){
+                        receiveMessageFromServer();
+                    }
+                    sendMessage("OK");
+                    receiveMessageFromServer(); // receive the DOT 
+                }
+                // GETS All,
+                // If any server has >=1 running job and >=1 waiting job,
+                   // LSTJ, and go through all the jobs listed, only the ones w state "waiting", see if job requirement matches the released server
+                   // if you find that job, migrate that job to the released server
+                // if no server has that, do nothing 
             }
         } catch(Exception e){
             System.out.println(e);
