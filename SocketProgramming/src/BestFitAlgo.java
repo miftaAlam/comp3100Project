@@ -34,7 +34,7 @@ public class BestFitAlgo {
 
     public static void main(String[] args){
         try{
-            BestFitAlgo c = new BestFitAlgo("localhost",50000);
+            BestFitAlgo c = new BestFitAlgo("10.126.132.76",50000);
             c.BFImprovedAlgorithm();;
             c.s.close();
             c.inputStream.close();
@@ -81,7 +81,7 @@ public class BestFitAlgo {
             setUpDataArrays();
             // receive list of servers
             if(noOfServers != 0){
-                assignToInactiveIdleServers();
+                assignToImmAvBestFitServers();
             } else {
                 findServerWIthShortestLocalQueue();
             }
@@ -92,7 +92,7 @@ public class BestFitAlgo {
         }
     }
 
-    public void assignToInactiveIdleServers(){
+    public void assignToImmAvBestFitServers(){
         int smallestFitnessValue = Integer.MAX_VALUE; //stores the actual smallest fitness value
         for(int i = 0; i < noOfServers; i++){
             setUpServerArrays();
