@@ -76,16 +76,16 @@ public class BestFitAlgo {
             // int smallestFitnessValue = Integer.MAX_VALUE; //stores the actual smallest fitness value
             // local variable to see if we found a CAPABLE FOR JOB + INACTIVE/IDLE SERVER
             //boolean capableInactive = false;
-            currentJob = new NormalJob(jobString);
-            sendMessage("GETS Avail " + currentJob.jobCore + " " + currentJob.jobMemory + " " + currentJob.jobDisk); //Send GETS Avail _ _ _
-            setUpDataArrays();
-            // receive list of servers
-            if(noOfServers != 0){
-                assignToImmAvBestFitServers();
-            } else {
-                findServerWIthShortestLocalQueue();
-            }
-            scheduleJobs();
+                currentJob = new NormalJob(jobString);
+                sendMessage("GETS Avail " + currentJob.jobCore + " " + currentJob.jobMemory + " " + currentJob.jobDisk); //Send GETS Avail _ _ _
+                setUpDataArrays();
+                // receive list of servers
+                if(noOfServers != 0){
+                    assignToImmAvBestFitServers();
+                } else {
+                    findServerWIthShortestLocalQueue();
+                }
+                    scheduleJobs();
             }
         } catch(Exception e){
             System.out.println(e);
