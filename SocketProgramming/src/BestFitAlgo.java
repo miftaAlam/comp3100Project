@@ -34,7 +34,7 @@ public class BestFitAlgo {
 
     public static void main(String[] args){
         try{
-            BestFitAlgo c = new BestFitAlgo("10.126.132.76",50000);
+            BestFitAlgo c = new BestFitAlgo("localhost",50000);
             c.BFImprovedAlgorithm();;
             c.s.close();
             c.inputStream.close();
@@ -120,7 +120,6 @@ public class BestFitAlgo {
                     }
                 }
                 sendMessage("OK");
-                // receive dot regardless 
                 receiveMessageFromServer(); //receive dot
     }
 
